@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>For My Love 💕</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #2b0845 0%, #61045f 50%, #b0006d 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Falling Sakura Canvas Layer */
+    #sakuraCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Container Box */
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 24px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      max-width: 520px;
+      width: 90%;
+      position: relative;
+      z-index: 10;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    h2 {
+      color: #920075;
+      margin-bottom: 15px;
+      font-size: 24px;
+    }
+
+    p.subtitle {
+      color: #555;
+      font-size: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stage {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .stage.active {
+      display: flex;
+    }
+
+    /* Option Buttons */
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #d800a6 0%, #8000a3 100%);
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      font-size: 15px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(128, 0, 163, 0.3);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(128, 0, 163, 0.5);
+    }
+
+    /* Stage 2: Color Grid */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .color-box {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: 3px solid #ffffff;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    }
+
+    .color-box:hover {
+      transform: scale(1.1);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+    }
+
+    /* Stage 3: Uniform Envelopes */
+    .envelopes-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .envelope-card {
+      background: #fff0f6;
+      border: 2px dashed #d800a6;
+      border-radius: 16px;
+      padding: 20px 15px;
+      width: 130px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .envelope-card:hover {
+      transform: translateY(-5px);
+      background: #ffe3f1;
+    }
+
+    .envelope-icon {
+      font-size: 45px;
+      margin-bottom: 8px;
+    }
+
+    .envelope-label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #8000a3;
+    }
+
+    /* Modal Pop-up Letter */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .letter-modal {
+      background: #fffdfa;
+      border: 3px solid #ff9ee2;
+      border-radius: 20px;
+      padding: 25px;
+      max-width: 450px;
+      width: 85%;
+      max-height: 80vh;
+      overflow-y: auto;
+      text-align: left;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      line-height: 1.6;
+      color: #333;
+      white-space: pre-line;
+      font-size: 14px;
+    }
+
+    .close-modal-btn {
+      margin-top: 15px;
+      width: 100%;
+      background: #920075;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* Larger Raining Square Photos */
+    #photoRainContainer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 50;
+      overflow: hidden;
+    }
+
+    .falling-photo {
+      position: absolute;
+      top: -160px;
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border: 4.5px solid #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      animation: fallPhoto linear forwards;
+    }
+
+    @keyframes fallPhoto {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(120vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cherry Blossom Rain Canvas -->
+  <canvas id="sakuraCanvas"></canvas>
+
+  <!-- Raining Photos Layer -->
+  <div id="photoRainContainer"></div>
+
+  <div class="container">
+    <!-- STAGE 1: FULL NAME QUIZ -->
+    <div id="stage1" class="stage active">
+      <h2>What is the name of your Baby Boy?</h2>
+      <p class="subtitle">Pick the correct name to unlock the next level!</p>
+      <div class="btn-group">
+        <button class="btn" onclick="checkName(false)">Mico</button>
+        <button class="btn" onclick="checkName(true)">Gilvert</button>
+        <button class="btn" onclick="checkName(false)">Gielex</button>
+        <button class="btn" onclick="checkName(false)">Ken</button>
+      </div>
+    </div>
+
+    <!-- STAGE 2: FAVORITE COLOR MIND GAME -->
+    <div id="stage2" class="stage">
+      <h2>What is your Baby Boy Favorite Color? </h2>
+      <div class="color-grid" id="colorGrid"></div>
+    </div>
+
+    <!-- STAGE 3: 3 IDENTICAL ENVELOPES WITH CUSTOM LABELS -->
+    <div id="stage3" class="stage">
+      <h2>3 Messages For You from your Baby Boy</h2>
+      <div class="envelopes-wrapper">
+        <div class="envelope-card" onclick="openEnvelope(1)">
+          <div class="envelope-icon">✉️</div>
+          <div class="envelope-label">Gilvert</div>
+        </div>
+        <div class="envelope-card" onclick="openEnvelope(2)">
+          <div class="envelope-icon">✉️</div>
+          <div class="envelope-label">Christophe</div>
+        </div>
+        <div class="envelope-card" onclick="openEnvelope(3)">
+          <div class="envelope-icon">✉️</div>
+          <div class="envelope-label">Friedrich</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LETTER MODAL POP-UP -->
+  <div class="modal-overlay" id="letterModal">
+    <div class="letter-modal">
+      <div id="modalLetterContent"></div>
+      <button class="close-modal-btn" onclick="closeLetter()">Close Letter</button>
+    </div>
+  </div>
+
+  <script>
+    /* --- STAGE NAVIGATION --- */
+    function goToStage(stageId) {
+      document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+      document.getElementById(stageId).classList.add('active');
+    }
+
+    /* --- STAGE 1 LOGIC --- */
+    function checkName(isCorrect) {
+      if (isCorrect) {
+        goToStage('stage2');
+      } else {
+        alert('Oops! That is not my exact full name baby 💕 Try again!');
+      }
+    }
+
+    /* --- STAGE 2 LOGIC (20 Color Grid) --- */
+    const colors = [
+      '#ff4d4d', '#ff9933', '#ffff4d', '#33cc33', '#33ffff',
+      '#3366ff', '#9933ff', '#ff3399', '#ffffff', '#a6a6a6',
+      '#000000', '#663300', '#ff6699', '#009999', '#990000',
+      '#006600', '#ffcc00', '#660066', '#003366', '#ff9999'
+    ];
+
+    const colorGridEl = document.getElementById('colorGrid');
+    
+    colors.forEach(hex => {
+      const box = document.createElement('div');
+      box.className = 'color-box';
+      box.style.backgroundColor = hex;
+      box.onclick = () => {
+        if (hex === '#000000') {
+          goToStage('stage3');
+        } else {
+          alert('Nope! Not my favorite color 🥺 Try another color box!');
+        }
+      };
+      colorGridEl.appendChild(box);
+    });
+
+    /* --- STAGE 3 LOGIC (3 Letters) --- */
+    const letters = {
+      1: `My Dearest Erica,
+
+I love you so much baby. I am so lucky that I met you in my life. I know things haven't been smooth and I've caused pain, but you mean everything to me. Being in an LDR is tough when I can't immediately comfort you, but soon I promise I will always be right by your side.`,
+
+      2: `My Baby Cutiee,
+
+You are my fuel and my entire life. I can't imagine living a single day without you. I promise to learn from my past mistakes, grow up, and be the best man and partner for you. I don't care about anyone else near or far—my heart and soul belong only to you.`,
+
+      3: `My Forever Ally,
+
+I want to build a bright future with you—travel the world, have fun, and make a happy family together. Whenever you are tired, rest on my shoulder, my chest, and my heart. You won't fight anything alone anymore because I am always your ally. I love you, Erica!`
+    };
+
+    /* --- YOUR PHOTO URLS --- */
+    const imageUrls = [
+      "images/p1.jpg",
+      "images/p2.jpg",
+      "images/p3.jpg",
+      "images/p4.jpg",
+      "images/p5.jpg",
+      "images/p6.jpg",
+      "images/p7.jpg",
+      "images/p8.jpg",
+      "images/p9.jpg",
+      "images/p10.jpg",
+      "images/p11.jpg",
+      "images/p12.jpg",
+      "images/p13.jpg",
+      "images/p14.jpg",
+      "images/p15.jpg"
+    ];
+
+    let photoRainInterval = null;
+
+    function openEnvelope(num) {
+      document.getElementById('modalLetterContent').innerText = letters[num];
+      document.getElementById('letterModal').classList.add('active');
+      startContinuousPhotoRain();
+    }
+
+    function closeLetter() {
+      document.getElementById('letterModal').classList.remove('active');
+      stopPhotoRain();
+    }
+
+    /* --- CONTINUOUS STEADY PHOTO STREAM --- */
+    function spawnPhotoBatch() {
+      const container = document.getElementById('photoRainContainer');
+      
+      const count = Math.floor(Math.random() * 3) + 2;
+
+      for (let i = 0; i < count; i++) {
+        const img = document.createElement('img');
+        img.src = imageUrls[Math.floor(Math.random() * imageUrls.length)];
+        img.className = 'falling-photo';
+        
+        img.style.left = Math.random() * 80 + 5 + 'vw';
+        
+        const duration = Math.random() * 3 + 7;
+        const delay = Math.random() * 1.5;
+        
+        img.style.animationDuration = duration + 's';
+        img.style.animationDelay = delay + 's';
+        
+        container.appendChild(img);
+
+        setTimeout(() => {
+          img.remove();
+        }, (duration + delay + 1) * 1000);
+      }
+    }
+
+    function startContinuousPhotoRain() {
+      stopPhotoRain();
+      spawnPhotoBatch();
+      
+      photoRainInterval = setInterval(() => {
+        spawnPhotoBatch();
+      }, 2500);
+    }
+
+    function stopPhotoRain() {
+      if (photoRainInterval) {
+        clearInterval(photoRainInterval);
+        photoRainInterval = null;
+      }
+    }
+
+    /* --- CHERRY BLOSSOM (SAKURA) PETAL ENGINE --- */
+    const canvas = document.getElementById('sakuraCanvas');
+    const ctx = canvas.getContext('2d');
+    let petals = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class SakuraPetal {
+      constructor() {
+        this.reset(true);
+      }
+
+      reset(initial = false) {
+        this.x = Math.random() * canvas.width;
+        this.y = initial ? Math.random() * canvas.height : -30;
+        
+        this.size = Math.random() * 10 + 16; 
+        
+        this.speedY = Math.random() * 0.4 + 0.3;
+        this.speedX = Math.random() * 0.3 - 0.15;
+        this.rotation = Math.random() * 360;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.6;
+        this.color = Math.random() > 0.4 ? '#ffc2d1' : '#ffb3c6';
+        this.opacity = Math.random() * 0.4 + 0.6;
+      }
+
+      update() {
+        this.y += this.speedY;
+        this.x += Math.sin(this.y * 0.015) * 0.8 + this.speedX;
+        this.rotation += this.rotationSpeed;
+
+        if (this.y > canvas.height + 30) {
+          this.reset(false);
+        }
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate((this.rotation * Math.PI) / 180);
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = this.color;
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(-this.size / 2, -this.size, -this.size, this.size / 3, 0, this.size);
+        ctx.bezierCurveTo(this.size, this.size / 3, this.size / 2, -this.size, 0, 0);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    for (let i = 0; i < 40; i++) {
+      petals.push(new SakuraPetal());
+    }
+
+    function animateSakura() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      petals.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animateSakura);
+    }
+    animateSakura();
+  </script>
+</body>
+</html>
